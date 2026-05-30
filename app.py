@@ -21,6 +21,7 @@ objective = st.radio(
 )
 
 if st.button("Predict Crop"):
+
     data = pd.DataFrame(
         [[N, P, K, temperature, humidity, ph, rainfall]],
         columns=['N', 'P', 'K', 'temperature', 'humidity', 'ph', 'rainfall']
@@ -28,9 +29,9 @@ if st.button("Predict Crop"):
 
     crop = model.predict(data)[0]
 
-    st.success(f"Recommended Crop: {crop}")
+    st.success(f"🌾 Recommended Crop: {crop}")
 
-   st.markdown(f"""
+    st.markdown(f"""
 ## 🌱 Smart Farming Advisory
 
 ### 🎯 Objective
@@ -40,13 +41,13 @@ if st.button("Predict Crop"):
 Plan irrigation based on the current rainfall and humidity conditions. Maintain adequate soil moisture and avoid overwatering.
 
 ### 🌿 Fertilizer Recommendation
-Apply fertilizers according to the Nitrogen (N), Phosphorus (P), and Potassium (K) levels. Regular soil testing is recommended for optimal nutrient management.
+Apply fertilizers according to the Nitrogen (N), Phosphorus (P), and Potassium (K) levels. Regular soil testing is recommended.
 
 ### 🐛 Pest & Disease Management
-Monitor crops regularly for pests, fungal infections, and leaf diseases. Early detection helps reduce crop losses and improve productivity.
+Monitor crops regularly for pests, fungal infections, and diseases. Early detection helps reduce crop losses.
 
 ### 📅 Seasonal Planning
-Follow the recommended sowing and harvesting schedule for **{crop}**. Monitor weather forecasts before irrigation and fertilizer application.
+Follow the recommended sowing and harvesting schedule for **{crop}**.
 
 ### 📈 Expected Benefits
 ✅ Improved crop yield  
