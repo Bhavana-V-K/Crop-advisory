@@ -3,13 +3,10 @@ import joblib
 import pandas as pd
 import requests
 from datetime import date
-import os
+
 
 st.set_page_config(page_title="AgriSmart Crop Advisor", page_icon="🌾", layout="wide")
-st.write("Files in repo:")
-st.write(os.listdir())
-
-model = joblib.load("crop_model(1).pkl")
+model = joblib.load("crop_model.pkl")
 
 
 st.markdown("""
