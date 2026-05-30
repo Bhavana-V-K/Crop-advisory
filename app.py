@@ -30,18 +30,30 @@ if st.button("Predict Crop"):
 
     st.success(f"Recommended Crop: {crop}")
 
-    st.markdown(f"""
-### Advisory
+   st.markdown(f"""
+## 🌱 Smart Farming Advisory
 
-**Objective:** {objective}
+### 🎯 Objective
+**{objective}**
 
-**Irrigation:** Plan irrigation based on rainfall and humidity.
+### 🌧️ Irrigation Recommendation
+Plan irrigation based on the current rainfall and humidity conditions. Maintain adequate soil moisture and avoid overwatering.
 
-**Fertilizer:** Apply fertilizer based on NPK values.
+### 🌿 Fertilizer Recommendation
+Apply fertilizers according to the Nitrogen (N), Phosphorus (P), and Potassium (K) levels. Regular soil testing is recommended for optimal nutrient management.
 
-**Pest Management:** Monitor crop regularly for pests and diseases.
+### 🐛 Pest & Disease Management
+Monitor crops regularly for pests, fungal infections, and leaf diseases. Early detection helps reduce crop losses and improve productivity.
 
-**Seasonal Planning:** Follow proper sowing and harvesting schedule.
+### 📅 Seasonal Planning
+Follow the recommended sowing and harvesting schedule for **{crop}**. Monitor weather forecasts before irrigation and fertilizer application.
 
-**Final Recommendation:** {crop} is suitable for the given conditions.
+### 📈 Expected Benefits
+✅ Improved crop yield  
+✅ Better resource utilization  
+✅ Reduced pest-related losses  
+✅ Enhanced soil health
+
+### 🌾 Final Recommendation
+Based on the provided soil and weather conditions, **{crop.upper()}** is the most suitable crop for cultivation.
 """)
