@@ -16,23 +16,25 @@ st.markdown("""
 <style>
 .stApp {
     background-color: #F5FAF6;
+    color: #1B1B1B;
 }
+
+h1, h2, h3, h4, p, label, span, div {
+    color: #1B1B1B !important;
+}
+
 .hero {
     background: linear-gradient(135deg, #1B5E20, #43A047);
     padding: 28px;
     border-radius: 20px;
-    color: white;
     text-align: center;
     margin-bottom: 25px;
 }
-.hero h1 {
-    font-size: 38px;
-    margin-bottom: 5px;
+
+.hero h1, .hero p {
+    color: white !important;
 }
-.hero p {
-    font-size: 16px;
-    opacity: 0.95;
-}
+
 .result-card {
     background-color: #E8F5E9;
     border-left: 6px solid #2E7D32;
@@ -40,6 +42,7 @@ st.markdown("""
     border-radius: 16px;
     margin-top: 20px;
 }
+
 .advisory-card {
     background-color: #FFFFFF;
     padding: 22px;
@@ -47,17 +50,19 @@ st.markdown("""
     border: 1px solid #C8E6C9;
     margin-top: 18px;
 }
+
 .stButton > button {
     background-color: #2E7D32;
-    color: white;
+    color: white !important;
     border-radius: 10px;
     border: none;
     padding: 10px 24px;
     font-weight: 600;
 }
+
 .stButton > button:hover {
     background-color: #1B5E20;
-    color: white;
+    color: white !important;
 }
 </style>
 """, unsafe_allow_html=True)
