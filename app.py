@@ -14,56 +14,39 @@ model = joblib.load("crop_model.pkl")
 
 st.markdown("""
 <style>
-.stApp {
-    background-color: #F5FAF6;
-    color: #1B1B1B;
+
+/* Dropdown box */
+.stSelectbox div[data-baseweb="select"] > div {
+    background-color: white !important;
+    color: black !important;
+    border: 2px solid #2E7D32 !important;
 }
 
-h1, h2, h3, h4, p, label, span, div {
+/* Dropdown text */
+.stSelectbox div[data-baseweb="select"] span {
+    color: black !important;
+}
+
+/* Dropdown menu items */
+div[role="listbox"] {
+    background-color: white !important;
+}
+
+div[role="option"] {
+    color: black !important;
+    background-color: white !important;
+}
+
+div[role="option"]:hover {
+    background-color: #E8F5E9 !important;
+}
+
+/* Input labels */
+label {
     color: #1B1B1B !important;
-}
-
-.hero {
-    background: linear-gradient(135deg, #1B5E20, #43A047);
-    padding: 28px;
-    border-radius: 20px;
-    text-align: center;
-    margin-bottom: 25px;
-}
-
-.hero h1, .hero p {
-    color: white !important;
-}
-
-.result-card {
-    background-color: #E8F5E9;
-    border-left: 6px solid #2E7D32;
-    padding: 20px;
-    border-radius: 16px;
-    margin-top: 20px;
-}
-
-.advisory-card {
-    background-color: #FFFFFF;
-    padding: 22px;
-    border-radius: 16px;
-    border: 1px solid #C8E6C9;
-    margin-top: 18px;
-}
-
-.stButton > button {
-    background-color: #2E7D32;
-    color: white !important;
-    border-radius: 10px;
-    border: none;
-    padding: 10px 24px;
     font-weight: 600;
 }
 
-.stButton > button:hover {
-    background-color: #1B5E20;
-    color: white !important;
-}
 </style>
 """, unsafe_allow_html=True)
 
