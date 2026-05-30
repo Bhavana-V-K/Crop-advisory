@@ -15,36 +15,117 @@ model = joblib.load("crop_model.pkl")
 st.markdown("""
 <style>
 
-/* Dropdown box */
+.stApp {
+    background-color: #F5FAF6;
+    color: #1B1B1B;
+}
+
+/* General Text */
+h1, h2, h3, h4, p, label {
+    color: #1B1B1B !important;
+}
+
+/* Hero Section */
+.hero {
+    background: linear-gradient(135deg, #1B5E20, #43A047);
+    padding: 28px;
+    border-radius: 20px;
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.hero h1,
+.hero p {
+    color: white !important;
+}
+
+/* Input Boxes */
+.stTextInput input,
+.stNumberInput input {
+    background-color: #FFF8E7 !important;
+    color: #1B1B1B !important;
+    border: 2px solid #8BC34A !important;
+    border-radius: 10px !important;
+}
+
+/* Dropdown (Kharif/Rabi/Summer) */
 .stSelectbox div[data-baseweb="select"] > div {
-    background-color: white !important;
-    color: black !important;
-    border: 2px solid #2E7D32 !important;
+    background-color: #FFF8E7 !important;
+    color: #1B1B1B !important;
+    border: 2px solid #8BC34A !important;
+    border-radius: 10px !important;
 }
 
-/* Dropdown text */
 .stSelectbox div[data-baseweb="select"] span {
-    color: black !important;
+    color: #1B1B1B !important;
+    font-weight: 500;
 }
 
-/* Dropdown menu items */
+/* Dropdown Menu */
 div[role="listbox"] {
-    background-color: white !important;
+    background-color: #FFF8E7 !important;
+    border: 2px solid #8BC34A !important;
 }
 
 div[role="option"] {
-    color: black !important;
-    background-color: white !important;
+    background-color: #FFF8E7 !important;
+    color: #1B1B1B !important;
 }
 
 div[role="option"]:hover {
     background-color: #E8F5E9 !important;
+    color: #1B5E20 !important;
 }
 
-/* Input labels */
-label {
+/* Radio Buttons */
+.stRadio label {
     color: #1B1B1B !important;
+    font-weight: 500;
+}
+
+/* Slider Labels */
+.stSlider label {
+    color: #1B1B1B !important;
+}
+
+/* Result Card */
+.result-card {
+    background-color: #E8F5E9;
+    border-left: 6px solid #2E7D32;
+    padding: 20px;
+    border-radius: 16px;
+    margin-top: 20px;
+}
+
+/* Advisory Cards */
+.advisory-card {
+    background-color: #FFFFFF;
+    padding: 22px;
+    border-radius: 16px;
+    border: 1px solid #C8E6C9;
+    margin-top: 18px;
+    color: #1B1B1B !important;
+}
+
+/* Buttons */
+.stButton > button {
+    background-color: #2E7D32;
+    color: white !important;
+    border-radius: 10px;
+    border: none;
+    padding: 10px 24px;
     font-weight: 600;
+}
+
+.stButton > button:hover {
+    background-color: #1B5E20;
+    color: white !important;
+}
+
+/* Success Box */
+.stSuccess {
+    background-color: #E8F5E9 !important;
+    color: #1B1B1B !important;
 }
 
 </style>
