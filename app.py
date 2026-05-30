@@ -6,49 +6,52 @@ from datetime import date
 st.set_page_config(
     page_title="AgriSmart Crop Advisor",
     page_icon="🌾",
-    layout="wide",
-    initial_sidebar_state="collapsed"
+    layout="wide"
 )
 
 model = joblib.load("crop_model.pkl")
 
 st.markdown("""
 <style>
-
 .stApp {
     background-color: #F5FAF6;
     color: #1B1B1B;
 }
 
-/* General Text */
-h1, h2, h3, h4, p, label {
+h1, h2, h3, h4, p, label, span {
     color: #1B1B1B !important;
 }
 
-/* Hero Section */
 .hero {
     background: linear-gradient(135deg, #1B5E20, #43A047);
-    padding: 28px;
+    padding: 30px;
     border-radius: 20px;
     text-align: center;
     margin-bottom: 25px;
 }
 
-.hero h1,
-.hero p {
+.hero h1, .hero p {
     color: white !important;
 }
 
-/* Input Boxes */
-.stTextInput input,
-.stNumberInput input {
-    background-color: #FFF8E7 !important;
-    color: #1B1B1B !important;
-    border: 2px solid #8BC34A !important;
-    border-radius: 10px !important;
+.card {
+    background-color: white;
+    padding: 22px;
+    border-radius: 16px;
+    border: 1px solid #C8E6C9;
+    margin-top: 18px;
 }
 
-/* Dropdown (Kharif/Rabi/Summer) */
+.result-card {
+    background-color: #E8F5E9;
+    border-left: 6px solid #2E7D32;
+    padding: 22px;
+    border-radius: 16px;
+    margin-top: 20px;
+}
+
+.stTextInput input,
+.stNumberInput input,
 .stSelectbox div[data-baseweb="select"] > div {
     background-color: #FFF8E7 !important;
     color: #1B1B1B !important;
@@ -56,58 +59,6 @@ h1, h2, h3, h4, p, label {
     border-radius: 10px !important;
 }
 
-.stSelectbox div[data-baseweb="select"] span {
-    color: #1B1B1B !important;
-    font-weight: 500;
-}
-
-/* Dropdown Menu */
-div[role="listbox"] {
-    background-color: #FFF8E7 !important;
-    border: 2px solid #8BC34A !important;
-}
-
-div[role="option"] {
-    background-color: #FFF8E7 !important;
-    color: #1B1B1B !important;
-}
-
-div[role="option"]:hover {
-    background-color: #E8F5E9 !important;
-    color: #1B5E20 !important;
-}
-
-/* Radio Buttons */
-.stRadio label {
-    color: #1B1B1B !important;
-    font-weight: 500;
-}
-
-/* Slider Labels */
-.stSlider label {
-    color: #1B1B1B !important;
-}
-
-/* Result Card */
-.result-card {
-    background-color: #E8F5E9;
-    border-left: 6px solid #2E7D32;
-    padding: 20px;
-    border-radius: 16px;
-    margin-top: 20px;
-}
-
-/* Advisory Cards */
-.advisory-card {
-    background-color: #FFFFFF;
-    padding: 22px;
-    border-radius: 16px;
-    border: 1px solid #C8E6C9;
-    margin-top: 18px;
-    color: #1B1B1B !important;
-}
-
-/* Buttons */
 .stButton > button {
     background-color: #2E7D32;
     color: white !important;
@@ -119,143 +70,266 @@ div[role="option"]:hover {
 
 .stButton > button:hover {
     background-color: #1B5E20;
-    color: white !important;
 }
-
-/* Success Box */
-.stSuccess {
-    background-color: #E8F5E9 !important;
-    color: #1B1B1B !important;
-}
-
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("""
-<div class="hero">
-    <h1>🌱 AgriSmart Crop Advisor</h1>
-    <p>Data-driven crop recommendation and advisory system for modern agriculture</p>
-</div>
-""", unsafe_allow_html=True)
 
-st.subheader("👨‍🌾 Farmer Profile")
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
 
-farmer_name = st.text_input("Farmer Name")
-location = st.text_input("Location / Village")
-farm_size = st.number_input("Farm Size (in acres)", 0.1, 100.0, 1.0)
-season = st.selectbox("Current Season", ["Kharif", "Rabi", "Summer"])
-previous_crop = st.text_input("Previous Crop Grown")
 
-st.subheader("🌱 Soil & Weather Input")
+def login_page():
+    st.markdown("""
+    <div class="hero">
+        <h1>🌾 AgriSmart Crop Advisor</h1>
+        <p>Login to access smart crop recommendation dashboard</p>
+    </div>
+    """, unsafe_allow_html=True)
 
-col1, col2 = st.columns(2)
+    st.subheader("🔐 Farmer Login")
 
-with col1:
-    N = st.slider("Nitrogen (N)", 0, 200, 50)
-    P = st.slider("Phosphorus (P)", 0, 200, 50)
-    K = st.slider("Potassium (K)", 0, 200, 50)
-    ph = st.slider("Soil pH", 0.0, 14.0, 6.5)
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
 
-with col2:
-    temperature = st.slider("Temperature (°C)", 0.0, 60.0, 25.0)
-    humidity = st.slider("Humidity (%)", 0.0, 100.0, 60.0)
-    rainfall = st.slider("Rainfall (mm)", 0.0, 500.0, 100.0)
+    if st.button("Login"):
+        if username == "farmer" and password == "1234":
+            st.session_state.logged_in = True
+            st.success("Login successful!")
+            st.rerun()
+        else:
+            st.error("Invalid username or password")
 
-objective = st.radio(
-    "Farming Objective",
-    ["High Yield", "Low Water Usage", "Organic Farming", "Profit Maximization"],
-    horizontal=True
-)
+    st.info("Demo Login: username = farmer, password = 1234")
 
-def pest_disease_advice(crop):
+
+def pesticide_recommendation(crop):
     crop = crop.lower()
 
-    advice = {
-        "rice": "Monitor stem borer, leaf folder, and blast disease. Maintain proper water level and avoid overcrowding.",
-        "maize": "Watch for fall armyworm and leaf blight. Use balanced fertilization and regular field monitoring.",
-        "cotton": "Monitor bollworm and whitefly. Use pheromone traps and avoid excessive pesticide use.",
-        "banana": "Watch for leaf spot and Panama wilt. Maintain clean field conditions and proper drainage.",
-        "grapes": "Monitor powdery mildew and downy mildew. Ensure good air circulation and avoid excess humidity.",
-        "mango": "Watch for fruit fly, anthracnose, and hopper insects. Use orchard sanitation and timely spraying.",
-        "papaya": "Monitor papaya ring spot virus, mealybugs, and fungal infection. Remove infected plants early.",
-        "muskmelon": "Watch for powdery mildew, aphids, and fruit rot. Avoid waterlogging.",
-        "watermelon": "Monitor fruit fly, aphids, and downy mildew. Maintain field hygiene.",
-        "coffee": "Watch for coffee leaf rust and berry borer. Maintain shade and regular inspection."
+    pesticide_data = {
+        "rice": {
+            "pests": "Stem borer, leaf folder, brown plant hopper",
+            "recommendation": "Use neem-based biopesticide or recommended insecticides. Maintain proper water level."
+        },
+        "maize": {
+            "pests": "Fall armyworm, stem borer, leaf blight",
+            "recommendation": "Use pheromone traps and neem oil. Apply recommended pesticide only when infestation is high."
+        },
+        "cotton": {
+            "pests": "Bollworm, whitefly, aphids",
+            "recommendation": "Use pheromone traps, neem oil, and integrated pest management practices."
+        },
+        "banana": {
+            "pests": "Banana aphid, nematodes, leaf spot",
+            "recommendation": "Use disease-free suckers, proper drainage, and recommended fungicide if leaf spot appears."
+        },
+        "grapes": {
+            "pests": "Powdery mildew, downy mildew, mealybugs",
+            "recommendation": "Maintain airflow, avoid excess humidity, and use recommended fungicide if symptoms appear."
+        },
+        "mango": {
+            "pests": "Fruit fly, mango hopper, anthracnose",
+            "recommendation": "Use fruit fly traps, orchard sanitation, and timely spraying."
+        },
+        "papaya": {
+            "pests": "Mealybug, fruit fly, papaya ring spot virus",
+            "recommendation": "Remove infected plants early and use organic pest control methods."
+        },
+        "muskmelon": {
+            "pests": "Aphids, powdery mildew, fruit fly",
+            "recommendation": "Avoid waterlogging, use neem oil, and monitor leaves regularly."
+        },
+        "watermelon": {
+            "pests": "Fruit fly, aphids, downy mildew",
+            "recommendation": "Use field sanitation, traps, and organic pesticides when needed."
+        },
+        "coffee": {
+            "pests": "Coffee berry borer, leaf rust",
+            "recommendation": "Maintain shade, prune regularly, and use recommended fungicide for rust."
+        }
     }
 
-    return advice.get(
+    return pesticide_data.get(
         crop,
-        "Monitor the crop regularly for pests, fungal infections, leaf spots, and abnormal growth."
+        {
+            "pests": "Common pests, fungal infections, leaf spots",
+            "recommendation": "Monitor the crop weekly and use organic or recommended pesticides only when symptoms appear."
+        }
     )
+
+
+def fertilizer_advice(N, P, K):
+    advice = []
+
+    if N < 50:
+        advice.append("Nitrogen is low. Use nitrogen-rich fertilizer such as urea or compost.")
+    elif N > 120:
+        advice.append("Nitrogen is high. Avoid excess nitrogen fertilizer.")
+    else:
+        advice.append("Nitrogen level is moderate.")
+
+    if P < 40:
+        advice.append("Phosphorus is low. Use phosphorus fertilizer to support root growth.")
+    elif P > 100:
+        advice.append("Phosphorus is high. Avoid extra phosphorus application.")
+    else:
+        advice.append("Phosphorus level is suitable.")
+
+    if K < 40:
+        advice.append("Potassium is low. Use potassium fertilizer for better crop quality.")
+    elif K > 120:
+        advice.append("Potassium is high. Avoid excess potassium fertilizer.")
+    else:
+        advice.append("Potassium level is suitable.")
+
+    return advice
+
+
+def irrigation_advice(rainfall, humidity):
+    if rainfall < 50:
+        return "Rainfall is low. Frequent irrigation is required."
+    elif rainfall < 150:
+        return "Rainfall is moderate. Provide irrigation based on soil moisture."
+    else:
+        return "Rainfall is high. Avoid overwatering and ensure proper drainage."
+
 
 def seasonal_plan(crop, season):
     return f"""
 For **{crop}** during **{season} season**:
 
-- Prepare land properly before sowing.
+- Prepare land before sowing.
 - Use quality seeds suitable for local climate.
 - Apply fertilizer based on soil nutrient status.
 - Monitor rainfall and irrigation requirements.
-- Inspect crop weekly for pest and disease symptoms.
-- Plan harvesting based on crop maturity and market demand.
+- Inspect crop weekly for pests and diseases.
+- Harvest based on crop maturity and market demand.
 """
 
-if st.button("Generate Crop Advisory"):
-    data = pd.DataFrame(
-        [[N, P, K, temperature, humidity, ph, rainfall]],
-        columns=['N', 'P', 'K', 'temperature', 'humidity', 'ph', 'rainfall']
+
+def dashboard():
+    st.markdown("""
+    <div class="hero">
+        <h1>🌱 AgriSmart Crop Advisor</h1>
+        <p>Smart crop recommendation, pesticide guidance, and seasonal advisory system</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    if st.button("Logout"):
+        st.session_state.logged_in = False
+        st.rerun()
+
+    st.subheader("👨‍🌾 Farmer Profile")
+
+    colA, colB = st.columns(2)
+
+    with colA:
+        farmer_name = st.text_input("Farmer Name")
+        location = st.text_input("Location / Village")
+        farm_size = st.number_input("Farm Size (in acres)", 0.1, 100.0, 1.0)
+
+    with colB:
+        season = st.selectbox("Current Season", ["Kharif", "Rabi", "Summer"])
+        previous_crop = st.text_input("Previous Crop Grown")
+        crop_type = st.selectbox(
+            "Crop Type",
+            ["Cereal", "Pulse", "Fruit", "Vegetable", "Cash Crop", "Plantation Crop"]
+        )
+
+    st.subheader("🌱 Soil & Weather Input")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        N = st.slider("Nitrogen (N)", 0, 200, 50)
+        P = st.slider("Phosphorus (P)", 0, 200, 50)
+        K = st.slider("Potassium (K)", 0, 200, 50)
+        ph = st.slider("Soil pH", 0.0, 14.0, 6.5)
+
+    with col2:
+        temperature = st.slider("Temperature (°C)", 0.0, 60.0, 25.0)
+        humidity = st.slider("Humidity (%)", 0.0, 100.0, 60.0)
+        rainfall = st.slider("Rainfall (mm)", 0.0, 500.0, 100.0)
+
+    objective = st.radio(
+        "🎯 Farming Objective",
+        ["High Yield", "Low Water Usage", "Organic Farming", "Profit Maximization"],
+        horizontal=True
     )
 
-    crop = model.predict(data)[0]
+    if st.button("Generate Crop Advisory"):
+        data = pd.DataFrame(
+            [[N, P, K, temperature, humidity, ph, rainfall]],
+            columns=['N', 'P', 'K', 'temperature', 'humidity', 'ph', 'rainfall']
+        )
 
-    st.markdown(f"""
-    <div class="result-card">
-        <h2>✅ Recommended Crop: {crop.upper()}</h2>
-        <p>This crop is selected based on soil nutrients, climate conditions, pH, and rainfall.</p>
-    </div>
-    """, unsafe_allow_html=True)
+        crop = model.predict(data)[0]
 
-    st.markdown(f"""
-    <div class="advisory-card">
-        <h3>👨‍🌾 Farmer Profile</h3>
-        <p><b>Name:</b> {farmer_name if farmer_name else "Not provided"}</p>
-        <p><b>Location:</b> {location if location else "Not provided"}</p>
-        <p><b>Farm Size:</b> {farm_size} acres</p>
-        <p><b>Previous Crop:</b> {previous_crop if previous_crop else "Not provided"}</p>
-    </div>
-    """, unsafe_allow_html=True)
+        pesticide = pesticide_recommendation(crop)
+        fert_advice = fertilizer_advice(N, P, K)
+        irrigation = irrigation_advice(rainfall, humidity)
 
-    st.markdown(f"""
-    <div class="advisory-card">
-        <h3>🌱 Personalized Crop Advisory</h3>
-        <p><b>Farming Objective:</b> {objective}</p>
-        <p><b>Irrigation:</b> Rainfall is {rainfall} mm and humidity is {humidity}%. Plan irrigation carefully and avoid both water stress and waterlogging.</p>
-        <p><b>Fertilizer:</b> Current NPK values are N={N}, P={P}, K={K}. Apply fertilizer based on nutrient deficiency and crop requirement.</p>
-        <p><b>Soil pH:</b> Current pH is {ph}. Maintain soil pH close to the suitable range for healthy crop growth.</p>
-    </div>
-    """, unsafe_allow_html=True)
+        st.markdown(f"""
+        <div class="result-card">
+            <h2>✅ Recommended Crop: {crop.upper()}</h2>
+            <p>This crop is recommended based on soil nutrients, weather conditions, pH, rainfall, and farming objective.</p>
+        </div>
+        """, unsafe_allow_html=True)
 
-    st.markdown(f"""
-    <div class="advisory-card">
-        <h3>🐛 Pest & Disease Management</h3>
-        <p>{pest_disease_advice(crop)}</p>
-    </div>
-    """, unsafe_allow_html=True)
+        st.markdown(f"""
+        <div class="card">
+            <h3>👨‍🌾 Farmer Information</h3>
+            <p><b>Name:</b> {farmer_name if farmer_name else "Not provided"}</p>
+            <p><b>Location:</b> {location if location else "Not provided"}</p>
+            <p><b>Farm Size:</b> {farm_size} acres</p>
+            <p><b>Season:</b> {season}</p>
+            <p><b>Previous Crop:</b> {previous_crop if previous_crop else "Not provided"}</p>
+            <p><b>Crop Type:</b> {crop_type}</p>
+        </div>
+        """, unsafe_allow_html=True)
 
-    st.markdown(f"""
-    <div class="advisory-card">
-        <h3>📅 Seasonal Planning Report</h3>
-        <p><b>Date:</b> {date.today()}</p>
-        <p><b>Season:</b> {season}</p>
-    </div>
-    """, unsafe_allow_html=True)
+        st.markdown(f"""
+        <div class="card">
+            <h3>🌱 Personalized Crop Advisory</h3>
+            <p><b>Objective:</b> {objective}</p>
+            <p><b>Irrigation Advice:</b> {irrigation}</p>
+            <p><b>Soil pH:</b> Current pH is {ph}. Maintain suitable pH for healthy crop growth.</p>
+        </div>
+        """, unsafe_allow_html=True)
 
-    st.markdown(seasonal_plan(crop, season))
+        st.markdown("<div class='card'><h3>🌿 Fertilizer Recommendation</h3>", unsafe_allow_html=True)
+        for item in fert_advice:
+            st.markdown(f"<p>• {item}</p>", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
-    st.markdown(f"""
-    <div class="advisory-card">
-        <h3>🌾 Final Recommendation</h3>
-        <p><b>{crop.upper()}</b> is suitable for the given soil and weather conditions.</p>
-        <p>This advisory helps farmers make better decisions for crop selection, irrigation, fertilizer use, pest control, and seasonal planning.</p>
-    </div>
-    """, unsafe_allow_html=True)
+        st.markdown(f"""
+        <div class="card">
+            <h3>🐛 Pesticide & Disease Management</h3>
+            <p><b>Likely Pests/Diseases:</b> {pesticide["pests"]}</p>
+            <p><b>Recommendation:</b> {pesticide["recommendation"]}</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown(f"""
+        <div class="card">
+            <h3>📅 Seasonal Planning Report</h3>
+            <p><b>Date:</b> {date.today()}</p>
+            <p><b>Season:</b> {season}</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown(seasonal_plan(crop, season))
+
+        st.markdown(f"""
+        <div class="card">
+            <h3>🌾 Final Recommendation</h3>
+            <p><b>{crop.upper()}</b> is suitable for the given soil and weather conditions.</p>
+            <p>This advisory supports crop selection, irrigation planning, fertilizer use, pesticide management, and seasonal planning.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+
+if st.session_state.logged_in:
+    dashboard()
+else:
+    login_page()
