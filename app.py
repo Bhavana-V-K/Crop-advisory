@@ -29,7 +29,6 @@ if st.button("Predict Crop"):
     crop = model.predict(data)[0]
 
     st.success(f"Recommended Crop: {crop}")
-    st.metric("Model Accuracy", "100%")
 
     st.markdown(f"""
 ### Advisory
