@@ -147,7 +147,7 @@ html, body, [class*="css"] {
 /* ── SLIDER TWEAKS ── */
 [data-testid="stSlider"] .rc-slider-track { background-color: var(--leaf) !important; }
 [data-testid="stSlider"] .rc-slider-handle {
-    border-color: var(--leaf) !important;
+    border-color: #7AAE5C !important;
     box-shadow: 0 0 0 4px rgba(74,124,47,.2) !important;
 }
 
@@ -158,27 +158,27 @@ html, body, [class*="css"] {
     gap: 14px !important;
 }
 [data-testid="stRadio"] label {
-    background: #fff !important;
-    border: 2.5px solid #C8D9A8 !important;
+    background: linear-gradient(145deg, #1A3A0A, #2D5016) !important;
+    border: 2.5px solid #4A7C2F !important;
     border-radius: 18px !important;
     padding: 24px 16px !important;
     font-size: 15px !important;
-    font-weight: 600 !important;
-    color: var(--soil) !important;
+    font-weight: 700 !important;
+    color: #D6E8C4 !important;
     cursor: pointer !important;
     transition: all .2s !important;
     text-align: center !important;
     min-height: 88px !important;
-    box-shadow: 0 2px 12px rgba(45,80,22,.07) !important;
+    box-shadow: 0 4px 18px rgba(0,0,0,.40) !important;
     line-height: 1.5 !important;
     justify-content: center !important;
 }
 [data-testid="stRadio"] label:hover {
-    background: var(--mist) !important;
-    border-color: var(--leaf) !important;
-    color: var(--moss) !important;
-    transform: translateY(-3px) !important;
-    box-shadow: 0 8px 24px rgba(45,80,22,.15) !important;
+    background: linear-gradient(145deg, #2D5016, #4A7C2F) !important;
+    border-color: #7AAE5C !important;
+    color: #fff !important;
+    transform: translateY(-4px) !important;
+    box-shadow: 0 10px 28px rgba(0,0,0,.50) !important;
 }
 /* hide the radio dot */
 [data-testid="stRadio"] [data-baseweb="radio"] > div:first-child { display:none !important; }
@@ -189,7 +189,7 @@ html, body, [class*="css"] {
     color: #fff !important;
     font-family: 'DM Sans', sans-serif !important;
     font-size: 15px !important;
-    font-weight: 600 !important;
+    font-weight: 700 !important;
     letter-spacing: .5px !important;
     border: none !important;
     border-radius: 14px !important;
