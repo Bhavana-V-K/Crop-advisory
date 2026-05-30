@@ -1,26 +1,17 @@
 import streamlit as st
 import joblib
 import pandas as pd
+import requests
 from datetime import date
 
-st.set_page_config(
-    page_title="AgriSmart Crop Advisor",
-    page_icon="🌾",
-    layout="wide"
-)
+st.set_page_config(page_title="AgriSmart Crop Advisor", page_icon="🌾", layout="wide")
 
-model = joblib.load("crop_model.pkl")
+model = joblib.load("crop_model(1).pkl")
 
 st.markdown("""
 <style>
-.stApp {
-    background-color: #F5FAF6;
-    color: #1B1B1B;
-}
-
-h1, h2, h3, h4, p, label, span {
-    color: #1B1B1B !important;
-}
+.stApp { background-color: #F5FAF6; color: #1B1B1B; }
+h1, h2, h3, h4, p, label, span { color: #1B1B1B !important; }
 
 .hero {
     background: linear-gradient(135deg, #1B5E20, #43A047);
@@ -29,10 +20,7 @@ h1, h2, h3, h4, p, label, span {
     text-align: center;
     margin-bottom: 25px;
 }
-
-.hero h1, .hero p {
-    color: white !important;
-}
+.hero h1, .hero p { color: white !important; }
 
 .card {
     background-color: white;
@@ -51,7 +39,13 @@ h1, h2, h3, h4, p, label, span {
 }
 
 .stTextInput input,
-.stNumberInput input,
+.stNumberInput input {
+    background-color: #FFF8E7 !important;
+    color: #1B1B1B !important;
+    border: 2px solid #8BC34A !important;
+    border-radius: 10px !important;
+}
+
 .stSelectbox div[data-baseweb="select"] > div {
     background-color: #FFF8E7 !important;
     color: #1B1B1B !important;
@@ -67,16 +61,40 @@ h1, h2, h3, h4, p, label, span {
     padding: 10px 24px;
     font-weight: 600;
 }
-
 .stButton > button:hover {
     background-color: #1B5E20;
+    color: white !important;
 }
 </style>
 """, unsafe_allow_html=True)
 
-
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
+
+
+def get_live_weather(city, api_key):
+    try:
+        url = "https://api.openweathermap.org/data/2.5/weather"
+        params = {
+            "q": city,
+            "appid": api_key,
+            "units": "metric"
+        }
+
+        response = requests.get(url, params=params, timeout=10)
+        data = response.json()
+
+        if response.status_code != 200:
+            return None, None, None, data.get("message", "Unable to fetch weather")
+
+        temperature = data["main"]["temp"]
+        humidity = data["main"]["humidity"]
+        rainfall = data.get("rain", {}).get("1h", 0)
+
+        return temperature, humidity, rainfall, None
+
+    except Exception as e:
+        return None, None, None, str(e)
 
 
 def login_page():
@@ -211,7 +229,7 @@ def dashboard():
     st.markdown("""
     <div class="hero">
         <h1>🌱 AgriSmart Crop Advisor</h1>
-        <p>Smart crop recommendation, pesticide guidance, and seasonal advisory system</p>
+        <p>Smart crop recommendation, live weather integration, pesticide guidance, and seasonal advisory system</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -225,7 +243,7 @@ def dashboard():
 
     with colA:
         farmer_name = st.text_input("Farmer Name")
-        location = st.text_input("Location / Village")
+        location = st.text_input("Location / Village / City", placeholder="Example: Hubli")
         farm_size = st.number_input("Farm Size (in acres)", 0.1, 100.0, 1.0)
 
     with colB:
@@ -236,7 +254,7 @@ def dashboard():
             ["Cereal", "Pulse", "Fruit", "Vegetable", "Cash Crop", "Plantation Crop"]
         )
 
-    st.subheader("🌱 Soil & Weather Input")
+    st.subheader("🌱 Soil Input")
 
     col1, col2 = st.columns(2)
 
@@ -244,9 +262,46 @@ def dashboard():
         N = st.slider("Nitrogen (N)", 0, 200, 50)
         P = st.slider("Phosphorus (P)", 0, 200, 50)
         K = st.slider("Potassium (K)", 0, 200, 50)
-        ph = st.slider("Soil pH", 0.0, 14.0, 6.5)
 
     with col2:
+        ph = st.slider("Soil pH", 0.0, 14.0, 6.5)
+
+    st.subheader("🌦️ Weather Information")
+
+    api_key = st.text_input("OpenWeatherMap API Key", type="password")
+    use_live_weather = st.checkbox("Use Live Weather Data")
+
+    weather_city = location.strip() if location else ""
+
+    if use_live_weather:
+        if api_key and weather_city:
+            temp_live, hum_live, rain_live, error = get_live_weather(weather_city, api_key)
+
+            if error:
+                st.error(f"Weather Error: {error}")
+                temperature = st.slider("Temperature (°C)", 0.0, 60.0, 25.0)
+                humidity = st.slider("Humidity (%)", 0.0, 100.0, 60.0)
+                rainfall = st.slider("Rainfall (mm)", 0.0, 500.0, 100.0)
+            else:
+                st.success(f"Live weather fetched for {weather_city}")
+
+                temperature = st.slider("Temperature (°C)", 0.0, 60.0, float(temp_live))
+                humidity = st.slider("Humidity (%)", 0.0, 100.0, float(hum_live))
+                rainfall = st.slider("Rainfall (mm)", 0.0, 500.0, float(rain_live))
+
+        elif not weather_city:
+            st.warning("Enter Location / City to fetch live weather.")
+            temperature = st.slider("Temperature (°C)", 0.0, 60.0, 25.0)
+            humidity = st.slider("Humidity (%)", 0.0, 100.0, 60.0)
+            rainfall = st.slider("Rainfall (mm)", 0.0, 500.0, 100.0)
+
+        else:
+            st.warning("Enter OpenWeatherMap API key to use live weather.")
+            temperature = st.slider("Temperature (°C)", 0.0, 60.0, 25.0)
+            humidity = st.slider("Humidity (%)", 0.0, 100.0, 60.0)
+            rainfall = st.slider("Rainfall (mm)", 0.0, 500.0, 100.0)
+
+    else:
         temperature = st.slider("Temperature (°C)", 0.0, 60.0, 25.0)
         humidity = st.slider("Humidity (%)", 0.0, 100.0, 60.0)
         rainfall = st.slider("Rainfall (mm)", 0.0, 500.0, 100.0)
@@ -290,6 +345,16 @@ def dashboard():
 
         st.markdown(f"""
         <div class="card">
+            <h3>🌦️ Weather Summary</h3>
+            <p><b>Temperature:</b> {temperature} °C</p>
+            <p><b>Humidity:</b> {humidity}%</p>
+            <p><b>Rainfall:</b> {rainfall} mm</p>
+            <p><b>Weather Source:</b> {"OpenWeatherMap API" if use_live_weather and api_key and weather_city else "Manual Input"}</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown(f"""
+        <div class="card">
             <h3>🌱 Personalized Crop Advisory</h3>
             <p><b>Objective:</b> {objective}</p>
             <p><b>Irrigation Advice:</b> {irrigation}</p>
@@ -324,7 +389,7 @@ def dashboard():
         <div class="card">
             <h3>🌾 Final Recommendation</h3>
             <p><b>{crop.upper()}</b> is suitable for the given soil and weather conditions.</p>
-            <p>This advisory supports crop selection, irrigation planning, fertilizer use, pesticide management, and seasonal planning.</p>
+            <p>This advisory supports crop selection, irrigation planning, fertilizer use, pesticide management, weather-based decision-making, and seasonal planning.</p>
         </div>
         """, unsafe_allow_html=True)
 
