@@ -3,7 +3,7 @@ import joblib
 import pandas as pd
 import requests
 from datetime import date
-
+API_KEY = "864a3dac8a448b9a03e78b08cd332c09"
 st.set_page_config(page_title="AgriSmart Crop Advisor", page_icon="🌾", layout="wide")
 
 model = joblib.load("crop_model.pkl")
@@ -273,43 +273,98 @@ def dashboard():
 
     weather_city = location.strip() if location else ""
 
-    if use_live_weather:
-        if api_key and weather_city:
-            temp_live, hum_live, rain_live, error = get_live_weather(weather_city, api_key)
+    st.subheader("🌦️ Live Weather Information")
 
-            if error:
-                st.error(f"Weather Error: {error}")
-                temperature = st.slider("Temperature (°C)", 0.0, 60.0, 25.0)
-                humidity = st.slider("Humidity (%)", 0.0, 100.0, 60.0)
-                rainfall = st.slider("Rainfall (mm)", 0.0, 500.0, 100.0)
-            else:
-                st.success(f"Live weather fetched for {weather_city}")
+weather_city = location.strip() if location else ""
 
-                temperature = st.slider("Temperature (°C)", 0.0, 60.0, float(temp_live))
-                humidity = st.slider("Humidity (%)", 0.0, 100.0, float(hum_live))
-                rainfall = st.slider("Rainfall (mm)", 0.0, 500.0, float(rain_live))
+if weather_city:
 
-        elif not weather_city:
-            st.warning("Enter Location / City to fetch live weather.")
-            temperature = st.slider("Temperature (°C)", 0.0, 60.0, 25.0)
-            humidity = st.slider("Humidity (%)", 0.0, 100.0, 60.0)
-            rainfall = st.slider("Rainfall (mm)", 0.0, 500.0, 100.0)
+    temp_live, hum_live, rain_live, error = get_live_weather(
+        weather_city,
+        API_KEY
+    )
 
-        else:
-            st.warning("Enter OpenWeatherMap API key to use live weather.")
-            temperature = st.slider("Temperature (°C)", 0.0, 60.0, 25.0)
-            humidity = st.slider("Humidity (%)", 0.0, 100.0, 60.0)
-            rainfall = st.slider("Rainfall (mm)", 0.0, 500.0, 100.0)
+    if error:
+
+        st.warning(
+            f"Unable to fetch live weather for {weather_city}. "
+            "Using manual values."
+        )
+
+        temperature = st.slider(
+            "Temperature (°C)",
+            0.0,
+            60.0,
+            25.0
+        )
+
+        humidity = st.slider(
+            "Humidity (%)",
+            0.0,
+            100.0,
+            60.0
+        )
+
+        rainfall = st.slider(
+            "Rainfall (mm)",
+            0.0,
+            500.0,
+            100.0
+        )
 
     else:
-        temperature = st.slider("Temperature (°C)", 0.0, 60.0, 25.0)
-        humidity = st.slider("Humidity (%)", 0.0, 100.0, 60.0)
-        rainfall = st.slider("Rainfall (mm)", 0.0, 500.0, 100.0)
 
-    objective = st.radio(
-        "🎯 Farming Objective",
-        ["High Yield", "Low Water Usage", "Organic Farming", "Profit Maximization"],
-        horizontal=True
+        temperature = float(temp_live)
+        humidity = float(hum_live)
+        rainfall = float(rain_live)
+
+        st.success(
+            f"Live weather fetched for {weather_city}"
+        )
+
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            st.metric(
+                "🌡️ Temperature",
+                f"{temperature} °C"
+            )
+
+        with col2:
+            st.metric(
+                "💧 Humidity",
+                f"{humidity}%"
+            )
+
+        with col3:
+            st.metric(
+                "🌧️ Rainfall",
+                f"{rainfall} mm"
+            )
+
+else:
+
+    st.info("Enter location to fetch live weather")
+
+    temperature = st.slider(
+        "Temperature (°C)",
+        0.0,
+        60.0,
+        25.0
+    )
+
+    humidity = st.slider(
+        "Humidity (%)",
+        0.0,
+        100.0,
+        60.0
+    )
+
+    rainfall = st.slider(
+        "Rainfall (mm)",
+        0.0,
+        500.0,
+        100.0
     )
 
     if st.button("Generate Crop Advisory"):
