@@ -6,11 +6,7 @@ from datetime import date
 
 API_KEY = "864a3dac8a448b9a03e78b08cd332c09"
 
-st.set_page_config(
-    page_title="AgriSmart Crop Advisor",
-    page_icon="🌾",
-    layout="wide"
-)
+st.set_page_config(page_title="AgriSmart Crop Advisor", page_icon="🌾", layout="wide")
 
 model = joblib.load("crop_model.pkl")
 
@@ -18,63 +14,32 @@ st.markdown("""
 <style>
 .stApp { background-color: #F5FAF6; color: #1B1B1B; }
 h1, h2, h3, h4, p, label, span { color: #1B1B1B !important; }
-
 .hero {
     background: linear-gradient(135deg, #1B5E20, #43A047);
-    padding: 30px;
-    border-radius: 20px;
-    text-align: center;
-    margin-bottom: 25px;
+    padding: 30px; border-radius: 20px; text-align: center; margin-bottom: 25px;
 }
-
-.hero h1, .hero p {
-    color: white !important;
-}
-
+.hero h1, .hero p { color: white !important; }
 .card {
-    background-color: white;
-    padding: 22px;
-    border-radius: 16px;
-    border: 1px solid #C8E6C9;
-    margin-top: 18px;
+    background-color: white; padding: 22px; border-radius: 16px;
+    border: 1px solid #C8E6C9; margin-top: 18px;
 }
-
 .result-card {
-    background-color: #E8F5E9;
-    border-left: 6px solid #2E7D32;
-    padding: 22px;
-    border-radius: 16px;
-    margin-top: 20px;
+    background-color: #E8F5E9; border-left: 6px solid #2E7D32;
+    padding: 22px; border-radius: 16px; margin-top: 20px;
 }
-
-.stTextInput input,
-.stNumberInput input {
-    background-color: #FFF8E7 !important;
-    color: #1B1B1B !important;
-    border: 2px solid #8BC34A !important;
-    border-radius: 10px !important;
+.stTextInput input, .stNumberInput input {
+    background-color: #FFF8E7 !important; color: #1B1B1B !important;
+    border: 2px solid #8BC34A !important; border-radius: 10px !important;
 }
-
 .stSelectbox div[data-baseweb="select"] > div {
-    background-color: #FFF8E7 !important;
-    color: #1B1B1B !important;
-    border: 2px solid #8BC34A !important;
-    border-radius: 10px !important;
+    background-color: #FFF8E7 !important; color: #1B1B1B !important;
+    border: 2px solid #8BC34A !important; border-radius: 10px !important;
 }
-
 .stButton > button {
-    background-color: #2E7D32;
-    color: white !important;
-    border-radius: 10px;
-    border: none;
-    padding: 10px 24px;
-    font-weight: 600;
+    background-color: #2E7D32; color: white !important; border-radius: 10px;
+    border: none; padding: 10px 24px; font-weight: 600;
 }
-
-.stButton > button:hover {
-    background-color: #1B5E20;
-    color: white !important;
-}
+.stButton > button:hover { background-color: #1B5E20; color: white !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -82,15 +47,24 @@ if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
 
+def clean_prediction(prediction):
+    crop = prediction[0]
+
+    if isinstance(crop, (list, tuple)):
+        crop = crop[0]
+
+    crop = str(crop)
+    crop = crop.replace("[", "").replace("]", "")
+    crop = crop.replace("'", "").replace('"', "")
+    crop = crop.strip().lower()
+
+    return crop
+
+
 def get_live_weather(city, api_key):
     try:
         url = "https://api.openweathermap.org/data/2.5/weather"
-
-        params = {
-            "q": city,
-            "appid": api_key,
-            "units": "metric"
-        }
+        params = {"q": city, "appid": api_key, "units": "metric"}
 
         response = requests.get(url, params=params, timeout=10)
         data = response.json()
@@ -133,7 +107,7 @@ def login_page():
 
 
 def pesticide_recommendation(crop):
-    crop = crop.lower()
+    crop = str(crop).lower().strip()
 
     pesticide_data = {
         "rice": {
@@ -175,6 +149,10 @@ def pesticide_recommendation(crop):
         "coffee": {
             "pests": "Coffee berry borer, leaf rust",
             "recommendation": "Maintain shade, prune regularly, and use recommended fungicide for rust."
+        },
+        "jute": {
+            "pests": "Stem rot, hairy caterpillar, semilooper",
+            "recommendation": "Maintain drainage, remove infected plants, and monitor leaf damage regularly."
         }
     }
 
@@ -254,7 +232,7 @@ def dashboard():
 
     with colA:
         farmer_name = st.text_input("Farmer Name")
-        location = st.text_input("Location / Village / City", placeholder="Example: Hubli")
+        location = st.text_input("Location / Village / City", placeholder="Example: Dharwad")
         farm_size = st.number_input("Farm Size (in acres)", 0.1, 100.0, 1.0)
 
     with colB:
@@ -282,15 +260,10 @@ def dashboard():
     weather_city = location.strip() if location else ""
 
     if weather_city:
-        temp_live, hum_live, rain_live, error = get_live_weather(
-            weather_city,
-            API_KEY
-        )
+        temp_live, hum_live, rain_live, error = get_live_weather(weather_city, API_KEY)
 
         if error:
-            st.warning(
-                f"Unable to fetch live weather for {weather_city}. Using manual values."
-            )
+            st.warning(f"Unable to fetch live weather for {weather_city}. Using manual values.")
 
             temperature = st.slider("Temperature (°C)", 0.0, 60.0, 25.0)
             humidity = st.slider("Humidity (%)", 0.0, 100.0, 60.0)
@@ -330,12 +303,14 @@ def dashboard():
     )
 
     if st.button("Generate Crop Advisory"):
+
         data = pd.DataFrame(
             [[N, P, K, temperature, humidity, ph, rainfall]],
-            columns=['N', 'P', 'K', 'temperature', 'humidity', 'ph', 'rainfall']
+            columns=["N", "P", "K", "temperature", "humidity", "ph", "rainfall"]
         )
 
-        crop = model.predict(data)[0]
+        prediction = model.predict(data)
+        crop = clean_prediction(prediction)
 
         pesticide = pesticide_recommendation(crop)
         fert_advice = fertilizer_advice(N, P, K)
