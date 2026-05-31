@@ -3,8 +3,14 @@ import joblib
 import pandas as pd
 import requests
 from datetime import date
+
 API_KEY = "864a3dac8a448b9a03e78b08cd332c09"
-st.set_page_config(page_title="AgriSmart Crop Advisor", page_icon="🌾", layout="wide")
+
+st.set_page_config(
+    page_title="AgriSmart Crop Advisor",
+    page_icon="🌾",
+    layout="wide"
+)
 
 model = joblib.load("crop_model.pkl")
 
@@ -20,7 +26,10 @@ h1, h2, h3, h4, p, label, span { color: #1B1B1B !important; }
     text-align: center;
     margin-bottom: 25px;
 }
-.hero h1, .hero p { color: white !important; }
+
+.hero h1, .hero p {
+    color: white !important;
+}
 
 .card {
     background-color: white;
@@ -61,6 +70,7 @@ h1, h2, h3, h4, p, label, span { color: #1B1B1B !important; }
     padding: 10px 24px;
     font-weight: 600;
 }
+
 .stButton > button:hover {
     background-color: #1B5E20;
     color: white !important;
@@ -75,6 +85,7 @@ if "logged_in" not in st.session_state:
 def get_live_weather(city, api_key):
     try:
         url = "https://api.openweathermap.org/data/2.5/weather"
+
         params = {
             "q": city,
             "appid": api_key,
@@ -203,7 +214,7 @@ def fertilizer_advice(N, P, K):
     return advice
 
 
-def irrigation_advice(rainfall, humidity):
+def irrigation_advice(rainfall):
     if rainfall < 50:
         return "Rainfall is low. Frequent irrigation is required."
     elif rainfall < 150:
@@ -266,105 +277,56 @@ def dashboard():
     with col2:
         ph = st.slider("Soil pH", 0.0, 14.0, 6.5)
 
-    st.subheader("🌦️ Weather Information")
-
-    api_key = st.text_input("OpenWeatherMap API Key", type="password")
-    use_live_weather = st.checkbox("Use Live Weather Data")
+    st.subheader("🌦️ Live Weather Information")
 
     weather_city = location.strip() if location else ""
 
-    st.subheader("🌦️ Live Weather Information")
-
-weather_city = location.strip() if location else ""
-
-if weather_city:
-
-    temp_live, hum_live, rain_live, error = get_live_weather(
-        weather_city,
-        API_KEY
-    )
-
-    if error:
-
-        st.warning(
-            f"Unable to fetch live weather for {weather_city}. "
-            "Using manual values."
+    if weather_city:
+        temp_live, hum_live, rain_live, error = get_live_weather(
+            weather_city,
+            API_KEY
         )
 
-        temperature = st.slider(
-            "Temperature (°C)",
-            0.0,
-            60.0,
-            25.0
-        )
+        if error:
+            st.warning(
+                f"Unable to fetch live weather for {weather_city}. Using manual values."
+            )
 
-        humidity = st.slider(
-            "Humidity (%)",
-            0.0,
-            100.0,
-            60.0
-        )
+            temperature = st.slider("Temperature (°C)", 0.0, 60.0, 25.0)
+            humidity = st.slider("Humidity (%)", 0.0, 100.0, 60.0)
+            rainfall = st.slider("Rainfall (mm)", 0.0, 500.0, 100.0)
+            weather_source = "Manual Input"
 
-        rainfall = st.slider(
-            "Rainfall (mm)",
-            0.0,
-            500.0,
-            100.0
-        )
+        else:
+            temperature = float(temp_live)
+            humidity = float(hum_live)
+            rainfall = float(rain_live)
+            weather_source = "OpenWeatherMap API"
 
+            st.success(f"Live weather fetched for {weather_city}")
+
+            w1, w2, w3 = st.columns(3)
+
+            with w1:
+                st.metric("🌡️ Temperature", f"{temperature} °C")
+
+            with w2:
+                st.metric("💧 Humidity", f"{humidity}%")
+
+            with w3:
+                st.metric("🌧️ Rainfall", f"{rainfall} mm")
     else:
+        st.info("Enter Location / Village / City to fetch live weather.")
 
-        temperature = float(temp_live)
-        humidity = float(hum_live)
-        rainfall = float(rain_live)
+        temperature = st.slider("Temperature (°C)", 0.0, 60.0, 25.0)
+        humidity = st.slider("Humidity (%)", 0.0, 100.0, 60.0)
+        rainfall = st.slider("Rainfall (mm)", 0.0, 500.0, 100.0)
+        weather_source = "Manual Input"
 
-        st.success(
-            f"Live weather fetched for {weather_city}"
-        )
-
-        col1, col2, col3 = st.columns(3)
-
-        with col1:
-            st.metric(
-                "🌡️ Temperature",
-                f"{temperature} °C"
-            )
-
-        with col2:
-            st.metric(
-                "💧 Humidity",
-                f"{humidity}%"
-            )
-
-        with col3:
-            st.metric(
-                "🌧️ Rainfall",
-                f"{rainfall} mm"
-            )
-
-else:
-
-    st.info("Enter location to fetch live weather")
-
-    temperature = st.slider(
-        "Temperature (°C)",
-        0.0,
-        60.0,
-        25.0
-    )
-
-    humidity = st.slider(
-        "Humidity (%)",
-        0.0,
-        100.0,
-        60.0
-    )
-
-    rainfall = st.slider(
-        "Rainfall (mm)",
-        0.0,
-        500.0,
-        100.0
+    objective = st.radio(
+        "🎯 Farming Objective",
+        ["High Yield", "Low Water Usage", "Organic Farming", "Profit Maximization"],
+        horizontal=True
     )
 
     if st.button("Generate Crop Advisory"):
@@ -377,7 +339,7 @@ else:
 
         pesticide = pesticide_recommendation(crop)
         fert_advice = fertilizer_advice(N, P, K)
-        irrigation = irrigation_advice(rainfall, humidity)
+        irrigation = irrigation_advice(rainfall)
 
         st.markdown(f"""
         <div class="result-card">
@@ -404,7 +366,7 @@ else:
             <p><b>Temperature:</b> {temperature} °C</p>
             <p><b>Humidity:</b> {humidity}%</p>
             <p><b>Rainfall:</b> {rainfall} mm</p>
-            <p><b>Weather Source:</b> {"OpenWeatherMap API" if use_live_weather and api_key and weather_city else "Manual Input"}</p>
+            <p><b>Weather Source:</b> {weather_source}</p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -418,8 +380,10 @@ else:
         """, unsafe_allow_html=True)
 
         st.markdown("<div class='card'><h3>🌿 Fertilizer Recommendation</h3>", unsafe_allow_html=True)
+
         for item in fert_advice:
             st.markdown(f"<p>• {item}</p>", unsafe_allow_html=True)
+
         st.markdown("</div>", unsafe_allow_html=True)
 
         st.markdown(f"""
